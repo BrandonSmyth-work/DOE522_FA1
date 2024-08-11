@@ -1,4 +1,4 @@
-name: Build and Deploy
+name: Build, Test, and Deploy
 
 on:
   push:
@@ -10,15 +10,22 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build
-        run: echo "Building the project..."
+        run: |
+          mkdir build
+          cp index.html build/
 
   test:
     runs-on: ubuntu-latest
     needs: build
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm   
+ install jest
       - name: Test
-        run: echo "Running tests..."
+        run: npm test
 
   deploy:
     runs-on: ubuntu-latest
@@ -26,4 +33,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Deploy
-        run: echo "Deploying to staging environment..."
+        uses: actions/deployment/deploy@v1
+        with:
+          provider: pages
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          publish-dir: build
